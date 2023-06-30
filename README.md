@@ -16,3 +16,4 @@ This project scrapes forex trading sentiment data and saves it to a CSV file.
 ## Output
 
 A CSV file named `sentiment.csv` will be created in the project's root directory.
+![CSV File Output](images/csv_output.png)
