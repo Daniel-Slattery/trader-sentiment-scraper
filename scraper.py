@@ -1,17 +1,34 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import time
 import csv
 from datetime import datetime
 import os
+import platform
 
 # Get the URL from the environment variable
 url = os.environ.get('SENTIMENT_URL')
 
 # Setup the driver. This is the part that opens up a browser
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver = None
+
+# Detect the platform
+system = platform.system()
+if system == 'Windows':
+    # Use Brave on Windows
+    brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
+    options = Options()
+    options.binary_location = brave_path
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+elif system == 'Darwin':
+    # Use Chrome on macOS
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+else:
+    print("Unsupported platform:", system)
+    exit(1)
 
 def scrape():
     # Make a request to the website
