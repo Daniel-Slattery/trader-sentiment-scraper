@@ -9,12 +9,11 @@ import csv
 from datetime import datetime, timedelta
 import os
 import platform
+import requests
 
-# Get the URL from the environment variable
+# Get the URLs from the environment variables
 url = os.environ.get('SENTIMENT_URL')
-
-# Setup the driver. This is the part that opens up a browser
-driver = None
+monitoring_url = os.environ.get('MONITORING_URL')
 
 def scrape(driver):
     # Make a request to the website
@@ -44,26 +43,30 @@ while True:
         current_min = datetime.now().minute
         # If it's 5 minutes to the next hour
         if current_min == 55:
-            # Check if the driver is None
-            if driver is None:
-                # Detect the platform
-                system = platform.system()
-                if system == 'Windows':
-                    # Use Brave on Windows
-                    brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
-                    options = Options()
-                    options.binary_location = brave_path
-                    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-                elif system == 'Darwin':
-                    # Use Chrome on macOS
-                    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-                else:
-                    print("Unsupported platform:", system)
-                    exit(1)
+            # Detect the platform
+            system = platform.system()
+            driver = None  # Move the initialization here
+            if system == 'Windows':
+                # Use Brave on Windows
+                brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
+                options = Options()
+                options.binary_location = brave_path
+                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            elif system == 'Darwin':
+                # Use Chrome on macOS
+                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+            else:
+                print("Unsupported platform:", system)
+                exit(1)
 
             scrape(driver)
             # Remember to close the driver when done
             driver.quit()
             time.sleep(300)  # Sleep for 5 minutes to avoid duplicate entries for the same hour
+    # Ping the monitoring URL
+    try:
+        requests.get(monitoring_url)
+    except requests.exceptions.RequestException as e:
+        print("Error pinging monitoring URL:", e)
 
     time.sleep(60)  # Check every minute
