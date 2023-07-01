@@ -3,7 +3,7 @@ from pytz import timezone
 
 def is_forex_market_open():
     now_est = datetime.now(timezone('US/Eastern'))
-    open_time_sunday = datetime.strptime('18:00:00', '%H:%M:%S').time()
+    open_time_sunday = datetime.strptime('16:00:00', '%H:%M:%S').time()
     close_time_friday = datetime.strptime('17:00:00', '%H:%M:%S').time()
 
     # If it's currently the weekend
