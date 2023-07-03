@@ -3,7 +3,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-from utilities import is_forex_market_open
+from utilities.isMarketOpen import is_forex_market_open
 import time
 import csv
 from datetime import datetime, timedelta
