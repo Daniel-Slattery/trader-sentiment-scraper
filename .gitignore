@@ -15,5 +15,7 @@ build/
 # Ignore enviroment variables file
 .env
 
-# Ignore Sentiment.csv
+# Ignore Sentiment.csv and dummy data
 Sentiment.csv
+yearly_data.csv
+utilities/year_data.csv
