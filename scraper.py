@@ -70,27 +70,27 @@ while True:
         # Get current minutes
         current_min = datetime.now().minute
         # If it's 5 minutes to the next hour
-        # if current_min == 55:
-        # Detect the platform
-        system = platform.system()
-        driver = None  # Move the initialization here
-        if system == 'Windows':
-            # Use Brave on Windows
-            brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
-            options = Options()
-            options.binary_location = brave_path
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-        elif system == 'Darwin':
-            # Use Chrome on macOS
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        else:
-            print("Unsupported platform:", system)
-            exit(1)
+        if current_min == 55:
+            # Detect the platform
+            system = platform.system()
+            driver = None  # Move the initialization here
+            if system == 'Windows':
+                # Use Brave on Windows
+                brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
+                options = Options()
+                options.binary_location = brave_path
+                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            elif system == 'Darwin':
+                # Use Chrome on macOS
+                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+            else:
+                print("Unsupported platform:", system)
+                exit(1)
 
-        scrape(driver)
-        # Remember to close the driver when done
-        driver.quit()
-        time.sleep(300)  # Sleep for 5 minutes to avoid duplicate entries for the same hour
+            scrape(driver)
+            # Remember to close the driver when done
+            driver.quit()
+            time.sleep(300)  # Sleep for 5 minutes to avoid duplicate entries for the same hour
     # Ping the monitoring URL
     try:
         requests.get(monitoring_url)
