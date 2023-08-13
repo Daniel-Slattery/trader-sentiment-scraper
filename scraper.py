@@ -41,8 +41,9 @@ def scrape(driver):
         data_dict[header] = value
 
     # Check if file exists and headers match
-    if os.path.exists('Sentiment.csv'):
-        with open('Sentiment.csv', 'r') as f:
+    filename = 'Sentiment.csv'
+    if os.path.exists(filename):
+        with open(filename, 'r') as f:
             existing_headers = next(csv.reader(f))
             if headers != existing_headers[1:]:  # Skip the "Timestamp" header
                 print("Headers mismatch! Writing to a new CSV file.")
@@ -55,47 +56,41 @@ def scrape(driver):
                     print("Error pinging headerMismatchURL:", e)
 
                 # Generate a new filename based on the current timestamp
-                new_filename = 'Sentiment_' + datetime.now().strftime('%Y%m%d_%H%M%S') + '.csv'
-                with open(new_filename, 'w', newline='') as new_f:
-                    writer = csv.DictWriter(new_f, fieldnames=["Timestamp"] + headers)
-                    writer.writeheader()
-                    writer.writerow(data_dict)
-                    print(f"Data written to {new_filename}")
-                return
-    else:
-        with open('Sentiment.csv', 'a', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["Timestamp"] + headers)
-            if f.tell() == 0:  # file is empty, write headers
-                writer.writeheader()
-            print(f"Writing item: {data_dict}")  # Print each item before writing
-            writer.writerow(data_dict)
+                filename = 'Sentiment_' + datetime.now().strftime('%Y%m%d_%H%M%S') + '.csv'
+
+    with open(filename, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["Timestamp"] + headers)
+        if f.tell() == 0:  # file is empty, write headers
+            writer.writeheader()
+        print(f"Writing item: {data_dict}")  # Print each item before writing
+        writer.writerow(data_dict)
 
 while True:
     if is_forex_market_open():
         # Get current minutes
         current_min = datetime.now().minute
         # If it's 5 minutes to the next hour
-        if current_min == 55:
-            # Detect the platform
-            system = platform.system()
-            driver = None  # Move the initialization here
-            if system == 'Windows':
-                # Use Brave on Windows
-                brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
-                options = Options()
-                options.binary_location = brave_path
-                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-            elif system == 'Darwin':
-                # Use Chrome on macOS
-                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-            else:
-                print("Unsupported platform:", system)
-                exit(1)
+        # if current_min == 55:
+        # Detect the platform
+        system = platform.system()
+        driver = None  # Move the initialization here
+        if system == 'Windows':
+            # Use Brave on Windows
+            brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
+            options = Options()
+            options.binary_location = brave_path
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        elif system == 'Darwin':
+            # Use Chrome on macOS
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        else:
+            print("Unsupported platform:", system)
+            exit(1)
 
-            scrape(driver)
-            # Remember to close the driver when done
-            driver.quit()
-            time.sleep(300)  # Sleep for 5 minutes to avoid duplicate entries for the same hour
+        scrape(driver)
+        # Remember to close the driver when done
+        driver.quit()
+        time.sleep(300)  # Sleep for 5 minutes to avoid duplicate entries for the same hour
     # Ping the monitoring URL
     try:
         requests.get(monitoring_url)
