@@ -1,6 +1,9 @@
 from selenium import webdriver
+from selenium.webdriver.edge.service import Service
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from utilities.isMarketOpen import is_forex_market_open
@@ -74,18 +77,23 @@ while True:
             # Detect the platform
             system = platform.system()
             driver = None  # Move the initialization here
-            if system == 'Windows':
-                # Use Brave on Windows
-                brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
-                options = Options()
-                options.binary_location = brave_path
+            options = Options()
+            # Trying Chrome
+            try:
                 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-            elif system == 'Darwin':
-                # Use Chrome on macOS
-                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-            else:
-                print("Unsupported platform:", system)
-                exit(1)
+            except WebDriverException:
+                # If Chrome doesn't work, try Brave
+                try:
+                    brave_path = 'C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'  # Path for Windows
+                    options.binary_location = brave_path
+                    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+                except WebDriverException:
+                    # If Brave also doesn't work, revert to using Edge
+                    try:
+                        driver = webdriver.Edge(service=Service(EdgeChromiumDriverManager().install()))
+                    except WebDriverException:
+                        print("All browsers (Chrome, Brave, and Edge) failed to initiate.")
+                        exit(1)
 
             scrape(driver)
             # Remember to close the driver when done

@@ -1,4 +1,5 @@
 # FX Trading Sentiment Data Scraper
+source venv/Scripts/activate
 
 This project scrapes forex trading sentiment data and saves it to a CSV file.
 
