@@ -63,6 +63,7 @@ def scrape(driver):
             for header in headers:
                 if header not in existing_headers:
                     headers_mismatch = True
+                    data_dict.pop(header, None)  # Remove the new header from data_dict
 
             if headers_mismatch:
                 print("Headers mismatch!")
