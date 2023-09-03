@@ -45,12 +45,27 @@ def scrape(driver):
 
     # Check if file exists and headers match
     filename = 'Sentiment.csv'
+    combined_headers = ["Timestamp"]  # Starting with just the Timestamp
+
     if os.path.exists(filename):
         with open(filename, 'r') as f:
             existing_headers = next(csv.reader(f))
-            if headers != existing_headers[1:]:  # Skip the "Timestamp" header
-                print("Headers mismatch! Writing to a new CSV file.")
 
+            headers_mismatch = False
+
+            # Handle missing headers
+            for header in existing_headers[1:]:  # Exclude the "Timestamp"
+                if header not in headers:  # If existing header is not in the new headers
+                    headers_mismatch = True
+                    data_dict[header] = '50.0%'
+
+            # Handle new headers
+            for header in headers:
+                if header not in existing_headers:
+                    headers_mismatch = True
+
+            if headers_mismatch:
+                print("Headers mismatch!")
                 # Ping headerMismatchURL due to the mismatch
                 try:
                     requests.get(headerMismatchURL)
@@ -58,11 +73,10 @@ def scrape(driver):
                 except requests.exceptions.RequestException as e:
                     print("Error pinging headerMismatchURL:", e)
 
-                # Generate a new filename based on the current timestamp
-                filename = 'Sentiment_' + datetime.now().strftime('%Y%m%d_%H%M%S') + '.csv'
+            combined_headers += existing_headers[1:]
 
     with open(filename, 'a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["Timestamp"] + headers)
+        writer = csv.DictWriter(f, fieldnames=combined_headers)
         if f.tell() == 0:  # file is empty, write headers
             writer.writeheader()
         print(f"Writing item: {data_dict}")  # Print each item before writing
