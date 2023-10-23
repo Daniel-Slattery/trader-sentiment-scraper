@@ -7,6 +7,7 @@ from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from utilities.isMarketOpen import is_forex_market_open
+from utilities.transformData import transform_data_and_append
 import time
 import csv
 from datetime import datetime, timedelta
@@ -82,6 +83,9 @@ def scrape(driver):
             writer.writeheader()
         print(f"Writing item: {data_dict}")  # Print each item before writing
         writer.writerow(data_dict)
+    
+    # Call the transform function to process the data and append to AverageSentiment.csv
+    transform_data_and_append(data_dict)
 
 while True:
     if is_forex_market_open():

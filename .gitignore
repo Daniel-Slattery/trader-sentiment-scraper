@@ -17,5 +17,6 @@ build/
 
 # Ignore Sentiment.csv and dummy data
 Sentiment.csv
+AverageSentiment.csv
 yearly_data.csv
 utilities/year_data.csv
