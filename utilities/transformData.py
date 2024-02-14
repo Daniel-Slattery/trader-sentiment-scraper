@@ -1,10 +1,11 @@
 import os
 import pandas as pd
+from datetime import datetime
 
 def transform_data_and_append(data_dict):
     """
     Transforms the provided data dictionary according to the specified criteria and appends the result
-    to AverageSentiment.csv.
+    to a monthly CSV file in the AverageSentiment directory.
     """
     # Convert the data dictionary into a DataFrame for easier processing
     row_df = pd.DataFrame([data_dict])
@@ -21,7 +22,6 @@ def transform_data_and_append(data_dict):
         values = []
         for col in currency_columns:
             value = row_df[col].iloc[0].rstrip('%')
-            # If the currency is the second part of the pair, use 1 - value, else use the value directly
             if col.split('/')[-1] == currency:
                 values.append(1 - float(value) / 100)
             else:
@@ -30,5 +30,19 @@ def transform_data_and_append(data_dict):
         # Calculate the average for these values
         result[currency] = sum(values) / len(values)
 
-    # Append the result to AverageSentiment.csv
-    result.to_csv('AverageSentiment.csv', mode='a', header=not os.path.exists('AverageSentiment.csv'), index=False)
+    # Base directory for AverageSentiment data
+    base_directory = r'C:\Users\danie\OneDrive\DataScraping\sentimentData\AverageSentiment'
+
+    # Ensure the directory exists
+    if not os.path.exists(base_directory):
+        os.makedirs(base_directory)
+
+    # Determine the filename based on current month and year
+    current_time = datetime.now()
+    filename = f'{current_time.strftime("%b-%Y").lower()}-averagesentiment.csv'
+
+    # Full path of the file
+    full_file_path = os.path.join(base_directory, filename)
+
+    # Append the result to the appropriate CSV file
+    result.to_csv(full_file_path, mode='a', header=not os.path.exists(full_file_path), index=False)
